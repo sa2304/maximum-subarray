@@ -1,6 +1,6 @@
-#include <algorithm>
 #include <cassert>
 #include <iostream>
+#include <limits>
 #include <vector>
 
 using namespace std;
@@ -8,38 +8,14 @@ using namespace std;
 class Solution {
  public:
   int maxSubArray(vector<int> &nums) {
-    auto start = max_element(nums.begin(), nums.end());
-    if (nums.end() != start) {
-      auto iter_right = start;
-      int sum_right = _walk(iter_right, nums.end());
-
-      auto pos = distance(nums.begin(), start);
-      auto rev_start = nums.rbegin() + nums.size() - pos - 1;
-      int sum_left = _walk(rev_start, nums.rend());
-
-      return std::max(sum_left, sum_right);
+    int local_max = nums[0];
+    int global_max = local_max;
+    for (int i = 1; i < nums.size(); ++i) {
+      local_max = max(nums[i], nums[i] + local_max);
+      global_max = max(global_max, local_max);
     }
 
-    return 0;
-  }
-
- private:
-  template<class Iter>
-  int _walk(Iter &first, Iter end) {
-    int sum = 0;
-    if (first != end) {
-      sum = *first++;
-      int increment = 0;
-      while (first != end) {
-        increment += *first++;
-        if (0 < increment) {
-          sum += increment;
-          increment = 0;
-        }
-      }
-    }
-
-    return sum;
+    return global_max;
   }
 };
 
@@ -65,6 +41,10 @@ void TestMaxSubArray() {
   {
     vector<int> numbers{-1, 1, 2, 1};
     assert(4 == s.maxSubArray(numbers));
+  }
+  {
+    vector<int> numbers{44, 44, -100, 45};
+    assert(88 == s.maxSubArray(numbers));
   }
 }
 
